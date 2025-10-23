@@ -45,5 +45,7 @@ const makeId = () => {
 // Ana uygulama bileşeni
 export default function TodoApp() {
 
-
+  const [input, setInput] = useState<string>('');
+  const [todos, setTodos] = useState<Todo[]>([]);
+  const [filter, setFilter] = useState<Filter>('ALL');
 } //end of TodoApp
