@@ -28,3 +28,5 @@ export type Todo ={
   done:boolean
 }
 
+// Filter Türü
+type Filter = 'ALL' | 'ACTIVE' | 'DONE';
