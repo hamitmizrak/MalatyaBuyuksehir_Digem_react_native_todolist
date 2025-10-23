@@ -52,4 +52,16 @@ export default function TodoApp() {
 
   // Aktif filtre
   const [filter, setFilter] = useState<Filter>('ALL');
+
+
+
+  // Yeni görev ekleme işlevi
+  const addTodo = useCallback(() => {
+
+    // Giriş metnini al ve boşlukları kırp
+   const text = input.trim();
+   if(!text) return; // Boşsa çık
+
+  } // end of addTodo
+
 } //end of TodoApp
