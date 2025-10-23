@@ -6,20 +6,26 @@
 */
 
 // React temel bileşen ve React Native bileşenleri içe aktarılıyor
-import { useCallback, useMemo, useState } from 'react';
+import React, { useCallback, useMemo, useState } from 'react';
+import {
+  FlatList,
+  KeyboardAvoidingView,
+  Platform,
+  Pressable,
+  SafeAreaView,
+  StyleSheet,
+  Text,
+  TextInput,
+  View,
+} from 'react-native';
 
-import { Pressable, Text, TextInput, View } from 'react-native';
-
-// React Native bileşenleri içe aktarılıyor.
-
-// Tek bir görev öğesi bileşeni
+// Tek bir görev yapısı
 export type Todo = {
   id: string;
   text: string;
   done: boolean;
-}; //end Todo
+};
 
-// Filter Türü
 type Filter = 'ALL' | 'ACTIVE' | 'DONE';
 
 // Basit, güvenli kimlik üretici
@@ -32,14 +38,11 @@ const makeId = () => {
   return `${Date.now()}-${Math.round(Math.random() * 1e9)}`;
 };
 
-// Ana uygulama bileşeni
-export default function TodoApp() {
+export default function App() {
   // Üst bardaki giriş kutusu
   const [input, setInput] = useState<string>('');
-
   // ToDo listesi
   const [todos, setTodos] = useState<Todo[]>([]);
-
   // Aktif filtre
   const [filter, setFilter] = useState<Filter>('ALL');
 
@@ -48,25 +51,21 @@ export default function TodoApp() {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editingText, setEditingText] = useState<string>('');
 
-  // Yeni görev ekleme işlevi
+  // Yeni görev ekle
   const addTodo = useCallback(() => {
-    // Giriş metnini al ve boşlukları kırp
     const text = input.trim();
-    if (!text) return; // Boşsa çık
+    if (!text) return;
 
-    //Metin tekrarını engele (Büyük küçük harfe duyarlı)
+    // Metin tekrarı engeli (büyük/küçük duyarsız)
     const exists = todos.some(
       (t) => t.text.toLocaleLowerCase('tr-TR') === text.toLocaleLowerCase('tr-TR')
     );
 
-    // Aynı görev zaten mevcutsa uyarı ver ve çık
     if (exists) {
-      alert('Aynı görev zaten mevcut!');
       setInput('');
       return;
     }
 
-    // Yeni görev oluştur ve listeye ekle
     const next: Todo = { id: makeId(), text, done: false };
     setTodos((prev) => [next, ...prev]);
     setInput('');
@@ -78,6 +77,19 @@ export default function TodoApp() {
       // Düzenleme modunda iken tıklama ile yanlışlıkla done değişmesin
       if (editingId && editingId === id) return;
       setTodos((prev) => prev.map((t) => (t.id === id ? { ...t, done: !t.done } : t)));
+    },
+    [editingId]
+  );
+
+  // Sil
+  const removeTodo = useCallback(
+    (id: string) => {
+      setTodos((prev) => prev.filter((t) => t.id !== id));
+      // Eğer silinen öğe düzenleniyorsa düzenleme modunu kapat
+      if (editingId === id) {
+        setEditingId(null);
+        setEditingText('');
+      }
     },
     [editingId]
   );
@@ -238,4 +250,114 @@ export default function TodoApp() {
     },
     [editingId, editingText, removeTodo, saveEditing, startEditing, toggleTodo]
   );
-} // end of addTodo
+
+  return (
+    <SafeAreaView style={styles.safe}>
+      <KeyboardAvoidingView
+        style={styles.flex}
+        behavior={Platform.select({ ios: 'padding', android: undefined })}
+      >
+        {/* Başlık & sayaç */}
+        <View style={styles.header}>
+          <Text style={styles.title}>Görevler</Text>
+          <Text style={styles.counter}>
+            {totalCount} görev · {doneCount} tamamlandı
+          </Text>
+        </View>
+
+        {/* Ekleme çubuğu */}
+        <View style={styles.inputBar}>
+          <TextInput
+            value={input}
+            onChangeText={setInput}
+            placeholder="Bir görev yazın…"
+            placeholderTextColor="#9aa0a6"
+            onSubmitEditing={addTodo}
+            returnKeyType="done"
+            style={styles.input}
+            maxLength={120}
+          />
+          <Pressable
+            style={({ pressed }) => [styles.addBtn, pressed && styles.addBtnPressed]}
+            onPress={addTodo}
+            accessibilityLabel="Görev ekle"
+          >
+            <Text style={styles.addBtnText}>Ekle</Text>
+          </Pressable>
+        </View>
+
+        {/* Filtreler ve tamamlananları temizle */}
+        <View style={styles.filters}>
+          <FilterButton label="Tümü" active={filter === 'ALL'} onPress={() => setFilter('ALL')} />
+          <FilterButton
+            label="Açık"
+            active={filter === 'ACTIVE'}
+            onPress={() => setFilter('ACTIVE')}
+          />
+          <FilterButton
+            label="Tamamlanmış"
+            active={filter === 'DONE'}
+            onPress={() => setFilter('DONE')}
+          />
+          <Pressable
+            onPress={clearCompleted}
+            style={({ pressed }) => [styles.clearBtn, pressed && styles.clearBtnPressed]}
+            accessibilityLabel="Tamamlananları temizle"
+          >
+            <Text style={styles.clearBtnText}>Temizle</Text>
+          </Pressable>
+        </View>
+
+        {/* Liste / Boş durum */}
+        {filtered.length > 0 ? (
+          <FlatList
+            data={filtered}
+            keyExtractor={(item) => item.id}
+            renderItem={renderItem}
+            ItemSeparatorComponent={() => <View style={styles.separator} />}
+            keyboardShouldPersistTaps="handled"
+            contentContainerStyle={styles.listContent}
+            extraData={{ editingId, editingText }}
+          />
+        ) : (
+          <View style={styles.empty}>
+            <Text style={styles.emptyTitle}>Görev yok</Text>
+            <Text style={styles.emptyText}>
+              {filter === 'ALL'
+                ? 'Hadi bir tane ekleyerek başlayalım.'
+                : filter === 'ACTIVE'
+                ? 'Aktif görev bulunmuyor.'
+                : 'Tamamlanmış görev yok.'}
+            </Text>
+          </View>
+        )}
+      </KeyboardAvoidingView>
+    </SafeAreaView>
+  );
+}
+
+function FilterButton({
+  label,
+  active,
+  onPress,
+}: {
+  label: string;
+  active: boolean;
+  onPress: () => void;
+}) {
+  return (
+    <Pressable
+      onPress={onPress}
+      style={({ pressed }) => [
+        styles.filterBtn,
+        active && styles.filterBtnActive,
+        pressed && styles.filterBtnPressed,
+      ]}
+      accessibilityRole="button"
+      accessibilityState={{ selected: active }}
+    >
+      <Text style={[styles.filterText, active && styles.filterTextActive]}>{label}</Text>
+    </Pressable>
+  );
+}
+// Stil tanımları
