@@ -44,8 +44,12 @@ const makeId = () => {
 
 // Ana uygulama bileşeni
 export default function TodoApp() {
-
+ // Üst bardaki giriş kutusu
   const [input, setInput] = useState<string>('');
+
+    // ToDo listesi
   const [todos, setTodos] = useState<Todo[]>([]);
+
+  // Aktif filtre
   const [filter, setFilter] = useState<Filter>('ALL');
 } //end of TodoApp
