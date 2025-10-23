@@ -53,6 +53,10 @@ export default function TodoApp() {
   // Aktif filtre
   const [filter, setFilter] = useState<Filter>('ALL');
 
+  // INLINE DÜZENLEME DURUMU:
+  // Hangi öğenin düzenlendiğini ve düzenleme alanındaki metni takip ediyoruz.
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [editingText, setEditingText] = useState<string>('');
 
 
   // Yeni görev ekleme işlevi
@@ -77,6 +81,13 @@ export default function TodoApp() {
     setTodos(prev => [next, ...prev]);
     setInput('');
   }, [input, todos]);
+
+    // Tamamla/geri al
+  const toggleTodo = useCallback((id: string) => {
+    // Düzenleme modunda iken tıklama ile yanlışlıkla done değişmesin
+    if (editingId && editingId === id) return;
+    setTodos(prev => prev.map(t => (t.id === id ? { ...t, done: !t.done } : t)));
+  }, [editingId]);
 
 
 
