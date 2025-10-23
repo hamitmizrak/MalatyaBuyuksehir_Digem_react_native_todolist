@@ -115,6 +115,28 @@ export default function TodoApp() {
   }, []);
 
 
+    // Düzenlemeyi kaydet
+  const saveEditing = useCallback(() => {
+    if (!editingId) return;
+    const text = editingText.trim();
+    if (!text) {
+      // Boş kaydetmeyi engelle; istersen burada otomatik sil de yapabilirsin.
+      return;
+    }
+    // Aynı metin başka bir öğede varsa (kendisi hariç) engelle
+    const duplicate = todos.some(
+      t =>
+        t.id !== editingId &&
+        t.text.toLocaleLowerCase('tr-TR') === text.toLocaleLowerCase('tr-TR')
+    );
+    if (duplicate) return;
+
+    setTodos(prev => prev.map(t => (t.id === editingId ? { ...t, text } : t)));
+    setEditingId(null);
+    setEditingText('');
+  }, [editingId, editingText, todos]);
+
+
   } // end of addTodo
 
 } //end of TodoApp
