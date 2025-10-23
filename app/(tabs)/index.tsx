@@ -1,5 +1,6 @@
 // index.tsx 
 /*
+• Todo List Uygulaması
 • Firebase yoktur
 • İsteğe bağlı kalıcılık (AsyncStorage) için en altta yorumlu şablon var.
 */
@@ -19,3 +20,11 @@ import {
   TextInput,
   View
 } from 'react-native';
+
+// Tek bir görev öğesi bileşeni
+export type Todo ={
+  id: string;
+  text: string;
+  done:boolean
+}
+
