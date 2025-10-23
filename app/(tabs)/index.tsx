@@ -136,6 +136,20 @@ export default function TodoApp() {
     setEditingText('');
   }, [editingId, editingText, todos]);
 
+    // Filtreli görünüm
+  const filtered = useMemo(() => {
+    switch (filter) {
+      case 'ACTIVE':
+        return todos.filter(t => !t.done);
+      case 'DONE':
+        return todos.filter(t => t.done);
+      default:
+        return todos;
+    }
+  }, [todos, filter]);
+
+  const totalCount = todos.length;
+  const doneCount = useMemo(() => todos.filter(t => t.done).length, [todos]);
 
   } // end of addTodo
 
