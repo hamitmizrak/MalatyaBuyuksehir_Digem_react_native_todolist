@@ -41,3 +41,9 @@ const makeId = () => {
   }
   return `${Date.now()}-${Math.round(Math.random() * 1e9)}`;
 };
+
+// Ana uygulama bileşeni
+export default function TodoApp() {
+
+
+} //end of TodoApp
