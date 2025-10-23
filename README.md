@@ -392,6 +392,16 @@ Xcode açalım ve Info.plist dosyasına şu satırları ekleyin
 
 ```sh
 npm install -g react-native-cli
+npm install -g typescript
+
+
+choco install -y nodejs.install python2
+
+
+
+SİLMEK
+npm uninstall -g react-native-cli
+
 
 ```
 
