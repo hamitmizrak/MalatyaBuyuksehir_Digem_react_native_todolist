@@ -6,14 +6,16 @@
 */
 
 // React temel bileşen ve React Native bileşenleri içe aktarılıyor
-import React, { useCallback, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
+
+import AsyncStorage from '@react-native-async-storage/async-storage';
+
 import {
   FlatList,
   KeyboardAvoidingView,
   Platform,
   Pressable,
   SafeAreaView,
-  StyleSheet,
   Text,
   TextInput,
   View,
@@ -49,6 +51,27 @@ export default function App() {
   const [todos, setTodos] = useState<Todo[]>([]);
   // Aktif filtre
   const [filter, setFilter] = useState<Filter>('ALL');
+
+  useEffect(() => {
+    (async () => {
+      try {
+        const raw = await AsyncStorage.getItem('todos');
+        if (raw) setTodos(JSON.parse(raw));
+      } catch (e) {
+        console.warn('Görevleri yüklerken hata:', e);
+      }
+    })();
+  }, []);
+
+  useEffect(() => {
+    (async () => {
+      try {
+        await AsyncStorage.setItem('todos', JSON.stringify(todos));
+      } catch (e) {
+        console.warn('Görevleri kaydederken hata:', e);
+      }
+    })();
+  }, [todos]);
 
   // INLINE DÜZENLEME DURUMU:
   // Hangi öğenin düzenlendiğini ve düzenleme alanındaki metni takip ediyoruz.
@@ -220,7 +243,6 @@ export default function App() {
 
       // NORMAL MOD: checkbox + metin + (Düzenle, Sil) butonları
       return (
-
         // Tekrar dokunma ve uzun basma için erişilebilirlik rolleri ve etiketler eklendi
         <Pressable
           onPress={() => toggleTodo(item.id)}
@@ -299,7 +321,7 @@ export default function App() {
             style={styles.input}
             maxLength={120}
           />
-          
+
           <Pressable
             style={({ pressed }) => [styles.addBtn, pressed && styles.addBtnPressed]}
             onPress={addTodo}
