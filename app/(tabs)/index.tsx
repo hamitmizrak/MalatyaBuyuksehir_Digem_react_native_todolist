@@ -89,6 +89,30 @@ export default function TodoApp() {
     setTodos(prev => prev.map(t => (t.id === id ? { ...t, done: !t.done } : t)));
   }, [editingId]);
 
+    // Tamamlananları temizle
+  const clearCompleted = useCallback(() => {
+    setTodos(prev => prev.filter(t => !t.done));
+    // Düzenlenen öğe tamamlanmış taraftaysa ve uçtuysa düzenleme durumunu sıfırla
+    if (editingId) {
+      const stillExists = todos.some(t => t.id === editingId && !t.done);
+      if (!stillExists) {
+        setEditingId(null);
+        setEditingText('');
+      }
+    }
+  }, [editingId, todos]);
+
+    // Düzenlemeyi başlat
+  const startEditing = useCallback((id: string, currentText: string) => {
+    setEditingId(id);
+    setEditingText(currentText);
+  }, []);
+
+  // Düzenlemeyi iptal
+  const cancelEditing = useCallback(() => {
+    setEditingId(null);
+    setEditingText('');
+  }, []);
 
 
   } // end of addTodo
