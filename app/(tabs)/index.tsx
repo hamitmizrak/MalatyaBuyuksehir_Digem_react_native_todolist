@@ -62,6 +62,24 @@ export default function TodoApp() {
    const text = input.trim();
    if(!text) return; // Boşsa çık
 
+   //Metin tekrarını engele (Büyük küçük harfe duyarlı)
+   const exists = todos.some(t=> t.text.toLocaleLowerCase("tr-TR") === text.toLocaleLowerCase("tr-TR"));
+
+   // Aynı görev zaten mevcutsa uyarı ver ve çık
+   if(exists) {
+    alert("Aynı görev zaten mevcut!");
+    setInput('');
+    return;
+   }
+
+    // Yeni görev oluştur ve listeye ekle
+    const next: Todo = { id: makeId(), text, done: false };
+    setTodos(prev => [next, ...prev]);
+    setInput('');
+  }, [input, todos]);
+
+
+
   } // end of addTodo
 
 } //end of TodoApp
