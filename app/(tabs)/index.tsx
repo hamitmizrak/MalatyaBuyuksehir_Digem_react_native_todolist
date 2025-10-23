@@ -8,8 +8,6 @@
 // React temel bileşen ve React Native bileşenleri içe aktarılıyor
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 
-import AsyncStorage from '@react-native-async-storage/async-storage';
-
 import {
   FlatList,
   KeyboardAvoidingView,
@@ -21,6 +19,11 @@ import {
   View,
 } from 'react-native';
 
+// css dosyası içe aktarılıyor
+import { StyleSheet } from 'react-native';
+
+
+import AsyncStorage from '@react-native-async-storage/async-storage';
 // Tek bir görev yapısı
 export type Todo = {
   id: string;
