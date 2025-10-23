@@ -52,6 +52,8 @@ export default function App() {
   // Aktif filtre
   const [filter, setFilter] = useState<Filter>('ALL');
 
+  // ASENKRON DEPOLAMA YÜKLEME/KAYDETME:
+  // Uygulama başlatıldığında görevleri yükle
   useEffect(() => {
     (async () => {
       try {
@@ -63,6 +65,8 @@ export default function App() {
     })();
   }, []);
 
+  // Görevler değiştiğinde kaydet
+  // Her değişiklikte kaydetmek performans sorunlarına yol açabilir; küçük uygulamalar için kabul edilebilir.
   useEffect(() => {
     (async () => {
       try {
