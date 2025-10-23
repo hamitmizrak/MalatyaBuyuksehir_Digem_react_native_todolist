@@ -26,9 +26,12 @@ export type Todo = {
   done: boolean;
 };
 
+// Filtre türü
 type Filter = 'ALL' | 'ACTIVE' | 'DONE';
 
 // Basit, güvenli kimlik üretici
+
+// UUID yoksa tarih+random karışımı kullanır
 const makeId = () => {
   // @ts-ignore bazı RN ortamlarında crypto olmayabilir
   if (typeof globalThis !== 'undefined' && (globalThis as any).crypto?.randomUUID) {
@@ -38,10 +41,11 @@ const makeId = () => {
   return `${Date.now()}-${Math.round(Math.random() * 1e9)}`;
 };
 
+// Ana uygulama bileşeni
 export default function App() {
   // Üst bardaki giriş kutusu
   const [input, setInput] = useState<string>('');
-  // ToDo listesi
+  // Görevler listesi
   const [todos, setTodos] = useState<Todo[]>([]);
   // Aktif filtre
   const [filter, setFilter] = useState<Filter>('ALL');
@@ -61,11 +65,13 @@ export default function App() {
       (t) => t.text.toLocaleLowerCase('tr-TR') === text.toLocaleLowerCase('tr-TR')
     );
 
+    // Tekrar varsa ekleme, sadece giriş kutusunu temizle
     if (exists) {
       setInput('');
       return;
     }
 
+    // Yeni görev ekle
     const next: Todo = { id: makeId(), text, done: false };
     setTodos((prev) => [next, ...prev]);
     setInput('');
@@ -132,8 +138,11 @@ export default function App() {
       (t) =>
         t.id !== editingId && t.text.toLocaleLowerCase('tr-TR') === text.toLocaleLowerCase('tr-TR')
     );
+
+    // Çoğaltma varsa kaydetme
     if (duplicate) return;
 
+    // Güncelle ve düzenleme modundan çık
     setTodos((prev) => prev.map((t) => (t.id === editingId ? { ...t, text } : t)));
     setEditingId(null);
     setEditingText('');
@@ -151,7 +160,10 @@ export default function App() {
     }
   }, [todos, filter]);
 
+  // Sayaçlar
   const totalCount = todos.length;
+
+  // Tamamlanmış görev sayısı
   const doneCount = useMemo(() => todos.filter((t) => t.done).length, [todos]);
 
   // Liste öğesi
@@ -164,6 +176,7 @@ export default function App() {
         return (
           <View style={[styles.row, styles.rowEditing]}>
             <View style={styles.checkbox /* düzenleme modunda pasif */} />
+            {/* Düzenleme metin girişi  */}
             <TextInput
               style={[styles.todoText, styles.editInput]}
               value={editingText}
@@ -175,6 +188,8 @@ export default function App() {
               onSubmitEditing={saveEditing} // Klavyeden Kaydet
               returnKeyType="done"
             />
+
+            {/* Kaydet butonu */}
             <Pressable
               onPress={saveEditing}
               style={({ pressed }) => [
@@ -186,6 +201,8 @@ export default function App() {
             >
               <Text style={styles.actionTextStrong}>Kaydet</Text>
             </Pressable>
+
+            {/* İptal butonu */}
             <Pressable
               onPress={cancelEditing}
               style={({ pressed }) => [
@@ -203,6 +220,8 @@ export default function App() {
 
       // NORMAL MOD: checkbox + metin + (Düzenle, Sil) butonları
       return (
+
+        // Tekrar dokunma ve uzun basma için erişilebilirlik rolleri ve etiketler eklendi
         <Pressable
           onPress={() => toggleTodo(item.id)}
           onLongPress={() => removeTodo(item.id)}
@@ -212,10 +231,12 @@ export default function App() {
           accessibilityLabel={`Görev: ${item.text}`}
           accessibilityHint="Dokunarak tamamla/geri al; uzun basarak sil"
         >
+          {/* Checkbox */}
           <View style={[styles.checkbox, item.done && styles.checkboxDone]}>
             {item.done ? <View style={styles.checkboxInner} /> : null}
           </View>
 
+          {/* Görev metni */}
           <Text style={[styles.todoText, item.done && styles.todoTextDone]} numberOfLines={2}>
             {item.text}
           </Text>
@@ -251,6 +272,7 @@ export default function App() {
     [editingId, editingText, removeTodo, saveEditing, startEditing, toggleTodo]
   );
 
+  // Ana render
   return (
     <SafeAreaView style={styles.safe}>
       <KeyboardAvoidingView
@@ -277,6 +299,7 @@ export default function App() {
             style={styles.input}
             maxLength={120}
           />
+          
           <Pressable
             style={({ pressed }) => [styles.addBtn, pressed && styles.addBtnPressed]}
             onPress={addTodo}
@@ -336,6 +359,7 @@ export default function App() {
   );
 }
 
+// Filtre butonu bileşeni
 function FilterButton({
   label,
   active,
