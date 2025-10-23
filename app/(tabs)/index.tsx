@@ -30,3 +30,14 @@ export type Todo ={
 
 // Filter Türü
 type Filter = 'ALL' | 'ACTIVE' | 'DONE';
+
+
+// Basit, güvenli kimlik üretici
+const makeId = () => {
+  // @ts-ignore bazı RN ortamlarında crypto olmayabilir
+  if (typeof globalThis !== 'undefined' && (globalThis as any).crypto?.randomUUID) {
+    // @ts-ignore
+    return (globalThis as any).crypto.randomUUID();
+  }
+  return `${Date.now()}-${Math.round(Math.random() * 1e9)}`;
+};
